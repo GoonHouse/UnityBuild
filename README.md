@@ -47,3 +47,17 @@ This will create the following:
 ```
 
 This can be uploaded directly to your website, or you could zip the entire folder and release it.
+
+# To Do
+* Wipe the temporary build directory.
+* Make `makegood.sh` do what `build.bat` does so it can just be run from cygwin.
+* Figure out the best way to make the enhanced `makegood.sh` run in regular ol' windows. Powershell? Wgetting a tar executable?!
+* Maybe just make all the build things happen from inside our `UnityBuild.cs` file.
+	* This will be difficult because the Unity.exe CLI build arguments expose features that aren't in the BuildPipeline / BuildOptions.
+	* Heck.
+* Generate a `judging.zip` for judges.
+	* Have a copyfile list to import into the root.
+* Make a fancy little webpage generator.
+	* Inline the WebGL build as an expandable section.
+	* Generate download links to the builds.
+	* Inline a description / other misc copy from a template.
