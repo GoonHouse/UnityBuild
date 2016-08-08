@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# $1 = the build to make
-
 gamename="YourGame";
 projpath=`pwd -P`;
 projpath="`cygpath -w "${projpath}"`";
@@ -16,19 +14,15 @@ exbuildargs="-s ASSERTIONS=1 -logFile \"${projpath}build-${gamename}-${buildname
 
 UnityBuild_Prepare(){
 	if [ -d "${temppath}" ]; then
-		echo "no temp";
+		echo "Clearing temporary build directory.";
 		rm -rf "${temppath}";
-	else
-		echo "temp didn't exist";
 	fi
 	if [ -d "${basepath}" ]; then
-		echo "no base";
+		echo "Clearing build artifact directory.";
 		rm -rf "${basepath}";
-	else
-		echo "base didn't exist";
 	fi
-	mkdir -p "${temppath}linux" "${temppath}mac" "${temppath}win32" "${temppath}win64" "${temppath}webgl";
-	mkdir -p "${basepath}linux" "${basepath}mac" "${basepath}win32" "${basepath}win64" "${basepath}webgl";
+	mkdir -p "${temppath}" "${temppath}linux" "${temppath}mac" "${temppath}win32" "${temppath}win64" "${temppath}webgl";
+	mkdir -p "${basepath}" "${basepath}linux" "${basepath}mac" "${basepath}win32" "${basepath}win64" "${basepath}webgl";
 }
 
 UnityBuild_BuildAll(){
@@ -54,14 +48,19 @@ UnityBuild_BuildAll(){
 }
 
 UnityBuild_Archive(){
-	# linux
+	#linux
 	mv "${temppath}linux" "${temppath}${gamename}";
 	tar cvpzf "`cygpath -u \"${basepath}linux/${gamename}.tar.gz\"`" -C "${temppath}" "${gamename}";
 	mv "${temppath}${gamename}" "${temppath}linux";
 	
-	# mac
-	chmod +x "${temppath}mac\\${gamename}.app\\Contents\\MacOS\\${gamename}";
+	#mac
+	# for some reason, if we don't provide pz, then it doesn't fully preserve file permissions.
+	# therefore, we need to do something stupid.
 	tar cvpzf "`cygpath -u \"${basepath}mac/${gamename}.tar.gz\"`" -C "${temppath}mac" "${gamename}.app";
+	gunzip "`cygpath -u \"${basepath}mac/${gamename}.tar.gz\"`";
+	tar --delete --file="`cygpath -u \"${basepath}mac/${gamename}.tar\"`" "${gamename}.app/Contents/MacOS/${gamename}";
+	tar -v --append --file="`cygpath -u \"${basepath}mac/${gamename}.tar\"`" -C "`cygpath -u \"${temppath}mac\"`" "`cygpath -u \"${gamename}.app/Contents/MacOS/${gamename}\"`" --mode='u+rwX,a+rX';
+	gzip "`cygpath -u \"${basepath}mac/${gamename}.tar\"`";
 	
 	# win
 	rm -rf "${temppath}win32\\player_win_x86.pdb" "${temppath}win32\\player_win_x86_s.pdb";
